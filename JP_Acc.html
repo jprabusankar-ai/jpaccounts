@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JP Accounts - Modern Floating Suite</title>
+    
+    <link rel="icon" type="image/x-icon" href="bank_78392.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="bank_78392.ico">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #F3F4F6; color: #111827; transition: background-color 0.3s, color 0.3s, filter 0.3s; -webkit-font-smoothing: antialiased;}
+        .glass-card { background: #ffffff; border: 1px solid #E5E7EB; border-radius: 1.25rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); transition: all 0.3s ease; position: relative;}
+        .glass-card:hover { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08); transform: translateY(-2px);}
+        .sidebar { background: #ffffff; border: 1px solid #E5E7EB; z-index: 50; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);}
+        .nav-active { background-color: #EEF2FF !important; color: #4F46E5 !important; font-weight: 600 !important; border-radius: 0.75rem;}
+        .nav-btn { color: #6B7280; transition: all 0.2s ease; border-radius: 0.75rem; margin-bottom: 0.25rem; padding: 0.75rem 1.25rem; font-size: 0.85rem; font-weight: 500;}
+        .nav-btn:hover:not(.nav-active) { color: #111827; background-color: #F9FAFB; }
+        .stat-card { padding: 1.25rem; }
+        .stat-label { font-size: 0.7rem; font-weight: 600; color: #6B7280; margin-bottom: 0.35rem; display: block; text-transform: uppercase; letter-spacing: 0.5px;}
+        .stat-value { font-size: 1.35rem; font-weight: 700; color: #111827; letter-spacing: -0.02em; }
+        .stat-icon { position: absolute; top: 1.25rem; right: 1.25rem; width: 36px; height: 36px; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .bank-card { border-radius: 1.25rem; padding: 1.5rem; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1); position: relative; overflow: hidden; color: #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.05); cursor: pointer;}
+        .bank-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px -5px var(--glow-color, rgba(0,0,0,0.2)); }
+        .bank-amt { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 1.5rem; margin-top: 0.1rem; }
+        .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
+        .icon-l { position: absolute; left: 1.25rem; color: #9CA3AF; pointer-events: none; font-size: 14px; }
+        .icon-r { position: absolute; right: 1rem; color: #9CA3AF; pointer-events: none; font-size: 10px; }
+        .search-field { padding-left: 3rem !important; height: 44px; background: #ffffff; border: 1px solid #D1D5DB; border-radius: 0.75rem; width: 100%; font-size: 13px; color: #111827; transition: all 0.2s;}
+        .search-field:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        .filter-select { appearance: none; padding-left: 1.25rem !important; padding-right: 2.5rem !important; height: 44px; background: #ffffff; border: 1px solid #D1D5DB; border-radius: 0.75rem; width: 100%; font-size: 12px; font-weight: 500; cursor: pointer; color: #4B5563; transition: all 0.2s;}
+        #month-selector { appearance: none; padding-left: 1.25rem; padding-right: 2.5rem; height: 40px; background: #ffffff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" stroke="%236B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>') no-repeat right 1rem center; border: 1px solid #D1D5DB; border-radius: 0.75rem; font-weight: 600; font-size: 13px; color: #111827; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);}
+        #sync-btn { background-color: #5b8665; color: white; height: 40px; border-radius: 0.75rem; font-size: 13px; font-weight: 600; transition: all 0.3s; border: none; box-shadow: 0 4px 10px rgba(91, 134, 101, 0.3);}
+        .btn-quick { background-color: #4F46E5; color: white; height: 40px; padding: 0 1.25rem; border-radius: 0.75rem; font-size: 13px; font-weight: 600; transition: all 0.3s; border: none; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 10px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+
+        /* --- DARK MODE OVERRIDES --- */
+        body.dark-mode { background-color: #0B1120; color: #f8fafc; }
+        .dark-mode .glass-card, .dark-mode .sidebar { background-color: #111827; border-color: #1f2937; }
+        .dark-mode .bg-white { background-color: #111827 !important; }
+        .dark-mode .bg-white\/50 { background-color: rgba(17, 24, 39, 0.8) !important; border-color: #1f2937 !important; }
+        .dark-mode .text-\[\#111827\] { color: #f8fafc !important; }
+        .dark-mode .text-\[\#4B5563\] { color: #cbd5e1 !important; }
+        .dark-mode .text-\[\#6B7280\] { color: #94a3b8 !important; }
+        .dark-mode .bg-\[\#F3F4F6\], .dark-mode .bg-\[\#F9FAFB\] { background-color: #0B1120 !important; }
+        .dark-mode .border-\[\#E5E7EB\], .dark-mode .border-\[\#D1D5DB\] { border-color: #1f2937 !important; }
+        .dark-mode .hover\:bg-\[\#F3F4F6\]:hover, .dark-mode .hover\:bg-\[\#F9FAFB\]:hover { background-color: #1f2937 !important; }
+        .dark-mode .nav-btn:hover:not(.nav-active) { background-color: #0B1120; color: #f8fafc; }
+        .dark-mode .nav-active { background-color: rgba(79, 70, 229, 0.2) !important; color: #818cf8 !important; }
+        .dark-mode .search-field, .dark-mode .filter-select, .dark-mode input, .dark-mode select { background-color: #0B1120 !important; color: #f8fafc !important; border-color: #1f2937 !important; color-scheme: dark; }
+        .dark-mode select option { background-color: #111827; color: #f8fafc; }
+        .dark-mode #quick-entry-modal > div { background-color: #111827; border-color: #1f2937; }
+        .dark-mode .bg-\[\#EEF2FF\] { background-color: rgba(79, 70, 229, 0.2) !important; }
+        .dark-mode .bg-\[\#FEF2F2\] { background-color: rgba(220, 38, 38, 0.2) !important; }
+        .dark-mode .bg-\[\#DCFCE7\] { background-color: rgba(5, 150, 105, 0.2) !important; }
+        .dark-mode .bg-\[\#DBEAFE\] { background-color: rgba(37, 99, 235, 0.2) !important; }
+        .dark-mode .stat-value:not(.text-\[\#DC2626\]):not(.text-\[\#059669\]) { color: #f8fafc; }
+        .dark-mode .stat-label { color: #94a3b8; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden" id="app-body">
+
+    <script>
+        if (localStorage.getItem('jpAccountsTheme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+    </script>
+
+    <div id="sidebar-overlay" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-40 hidden transition-opacity lg:hidden" onclick="toggleSidebar()"></div>
+
+    <div id="sidebar" class="w-[260px] sidebar m-4 rounded-[1.25rem] p-6 flex flex-col shrink-0 absolute lg:relative z-50 transform -translate-x-[120%] lg:translate-x-0 h-[calc(100vh-2rem)] lg:h-auto shadow-2xl lg:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)]">
+        
+        <button onclick="toggleSidebar()" class="lg:hidden absolute top-5 right-5 text-[#9CA3AF] hover:text-[#111827] transition-colors dark:hover:text-[#f8fafc]">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+
+        <div class="mb-10 px-2 mt-2 flex items-center gap-3 text-[#111827]">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#4F46E5] to-[#3B82F6] flex items-center justify-center shadow-lg text-white shrink-0">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+            </div>
+            <h1 class="text-[19px] font-bold tracking-tight">JP Accounts</h1>
+        </div>
+        
+        <nav class="flex flex-col gap-1 relative">
+            <button onclick="showPage('dashboard')" id="nav-dashboard" class="nav-btn nav-active flex items-center gap-3 text-left"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect></svg> Dashboard</button>
+            <button onclick="showPage('transactions')" id="nav-transactions" class="nav-btn flex items-center gap-3 text-left"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> Transactions</button>
+            <button onclick="showPage('categories')" id="nav-categories" class="nav-btn flex items-center gap-3 text-left"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M9" 3v18"></path><path d="M15" 3v18"></path></svg> Categories</button>
+        </nav>
+
+        <div class="mt-auto p-4 bg-[#F9FAFB] rounded-xl flex flex-col gap-1 border border-[#E5E7EB]">
+            <div class="flex items-center gap-2">
+                <span id="sync-status-dot" class="w-2 h-2 rounded-full bg-[#10B981] transition-colors duration-300"></span>
+                <span id="sync-status-text" class="text-[10px] font-bold text-[#6B7280] uppercase tracking-widest transition-colors duration-300">Connecting</span>
+            </div>
+            <p id="sync-timer" class="text-[11px] text-[#9CA3AF] mt-1 font-medium">Initializing...</p>
+        </div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-4 md:p-8 relative">
+        <div class="max-w-[1400px] mx-auto">
+            
+            <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-8 bg-white/50 backdrop-blur-md p-4 rounded-2xl border border-white shadow-sm dark:bg-[rgba(17,24,39,0.8)] dark:border-[#1f2937]">
+                
+                <div class="flex items-center gap-3 w-full xl:w-auto">
+                    <button onclick="toggleSidebar()" class="lg:hidden w-10 h-10 rounded-xl bg-white border border-[#D1D5DB] text-[#6B7280] transition-all flex items-center justify-center hover:bg-[#F3F4F6] hover:text-[#111827] shadow-sm shrink-0 dark:bg-[#111827] dark:border-[#1f2937] dark:hover:bg-[#1f2937] dark:text-[#94a3b8] dark:hover:text-[#f8fafc]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </button>
+                    <h1 id="page-title" class="text-[20px] md:text-[24px] font-bold text-[#111827] tracking-tight">Financial Overview</h1>
+                </div>
+
+                <div class="flex items-center gap-2 md:gap-3 flex-wrap sm:flex-nowrap w-full xl:w-auto sm:justify-end overflow-x-auto pb-1 sm:pb-0">
+                    
+                    <button onclick="window.location.reload()" class="w-10 h-10 rounded-xl bg-white border border-[#D1D5DB] text-[#6B7280] transition-all flex items-center justify-center hover:bg-[#F3F4F6] hover:text-[#111827] shadow-sm shrink-0 dark:bg-[#111827] dark:border-[#1f2937] dark:hover:bg-[#1f2937] dark:text-[#94a3b8] dark:hover:text-[#f8fafc]" title="Reload App">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                    </button>
+
+                    <button onclick="toggleTheme()" class="w-10 h-10 rounded-xl bg-white border border-[#D1D5DB] text-[#6B7280] transition-all flex items-center justify-center hover:bg-[#F3F4F6] hover:text-[#111827] shadow-sm shrink-0 dark:bg-[#111827] dark:border-[#1f2937] dark:hover:bg-[#1f2937] dark:text-[#94a3b8] dark:hover:text-[#f8fafc]">
+                        <svg id="theme-moon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                        <svg id="theme-sun" class="hidden" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    </button>
+
+                    <button onclick="toggleBalances()" class="w-10 h-10 rounded-xl bg-white border border-[#D1D5DB] text-[#6B7280] transition-all flex items-center justify-center hover:bg-[#F3F4F6] hover:text-[#111827] shadow-sm shrink-0 dark:bg-[#111827] dark:border-[#1f2937] dark:hover:bg-[#1f2937] dark:text-[#94a3b8] dark:hover:text-[#f8fafc]">
+                        <svg id="eye-open" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <svg id="eye-closed" class="hidden" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" x2="23" y1="1" y2="23"></line></svg>
+                    </button>
+                    
+                    <select id="month-selector" onchange="switchMonth()" class="hidden outline-none shadow-sm shrink-0"></select>
+                    
+                    <button onclick="toggleModal(true)" class="btn-quick shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> <span class="hidden sm:inline">Quick Entry</span></button>
+                    
+                    <button onclick="syncSheet()" id="sync-btn" class="px-3 sm:px-5 flex items-center gap-2 shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2.5 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg> <span class="hidden sm:inline">Synchronize</span></button>
+                </div>
+            </div>
+
+            <div id="dashboard-view" class="view-section fade-in">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+                    <div class="glass-card stat-card"><span class="stat-label">Opening Balance</span><p id="stat-opening" class="stat-value amount-blur">₹0</p><div class="stat-icon bg-[#F3F4F6] text-[#6B7280]"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"></circle></svg></div></div>
+                    <div class="glass-card stat-card"><span class="stat-label">Total Credit</span><p id="stat-income" class="stat-value amount-blur">₹0</p><div class="stat-icon bg-[#DCFCE7] text-[#059669]"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M7 17l5-5 5 5M7 12l5-5 5 5"/></svg></div></div>
+                    <div class="glass-card stat-card"><span class="stat-label">Total Available</span><p id="stat-available" class="stat-value amount-blur">₹0</p><div class="stat-icon bg-[#DBEAFE] text-[#2563EB]"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"></rect><path d="M9 8h6M9 12h6M9 16h6"></path></svg></div></div>
+                    <div class="glass-card stat-card"><span class="stat-label">Total Debit</span><p id="stat-expense" class="stat-value amount-blur text-[#DC2626]">₹0</p><div class="stat-icon bg-[#FEE2E2] text-[#DC2626]"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>
+                    <div class="glass-card stat-card"><span class="stat-label">Closing Balance</span><p id="stat-closing" class="stat-value amount-blur">₹0</p><div class="stat-icon bg-[#F3F4F6] text-[#6B7280]"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 9h14M5 15h14"/></svg></div></div>
+                    
+                    <div class="glass-card stat-card">
+                        <span class="stat-label">Cash Balance</span>
+                        <p id="stat-cash" class="stat-value amount-blur text-[#059669]">₹0</p>
+                        <div class="stat-icon bg-[#DCFCE7] text-[#059669]">
+                            <span class="font-bold text-[18px]">₹</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between mb-4 px-1">
+                    <h3 class="font-bold text-[#111827] text-[16px] tracking-tight">Account Summary</h3>
+                    <div class="flex gap-2 items-center bg-white px-3 py-1 rounded-md border border-[#E5E7EB] shadow-sm"><span class="text-[10px] font-bold text-[#6B7280] uppercase tracking-widest hidden sm:inline">Aggregate Liquidity:</span><span id="bank-total-sum" class="text-sm font-bold text-[#111827] amount-blur">₹0</span></div>
+                </div>
+
+                <div id="bank-cards-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8"></div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="glass-card p-6 flex flex-col h-[380px]"><h3 class="font-bold text-[#111827] text-[15px] mb-6 tracking-tight">Cashflow Overview</h3><div class="flex-1 relative w-full h-full"><canvas id="trendChart"></canvas></div></div>
+                    <div class="glass-card p-6 flex flex-col h-[380px]"><div class="flex justify-between items-center mb-6"><h3 class="font-bold text-[#111827] text-[15px] tracking-tight">Top Expenses</h3></div><div class="space-y-5 flex-1 overflow-y-auto pr-2" id="top-expenses-list"></div><button onclick="showPage('categories')" class="mt-4 w-full py-2.5 bg-[#F9FAFB] text-[#4B5563] rounded-xl text-[12px] font-semibold hover:bg-[#F3F4F6] transition-colors border border-[#E5E7EB]">View All Categories</button></div>
+                    <div id="personal-balance-container"></div>
+                </div>
+            </div>
+
+            <div id="transactions-view" class="view-section hidden fade-in">
+                <div class="flex flex-col gap-4 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                        <div class="input-wrapper"><span class="icon-l"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span><input type="text" id="search-bar" oninput="filterData()" placeholder="Search transactions..." class="search-field shadow-sm"></div>
+                        <div class="input-wrapper"><select onchange="filterData()" id="filter-type" class="filter-select shadow-sm"><option value="all">All Types</option><option value="income">Income</option><option value="expense">Expense</option><option value="transfer">Transfers</option></select><span class="icon-r">▼</span></div>
+                        <div class="input-wrapper"><select onchange="filterData()" id="filter-category" class="filter-select shadow-sm"><option value="all">All Categories</option></select><span class="icon-r">▼</span></div>
+                        <div class="input-wrapper"><select onchange="filterData()" id="filter-account" class="filter-select shadow-sm"><option value="all">All Accounts</option></select><span class="icon-r">▼</span></div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 items-center border-t border-[#F3F4F6] dark:border-[#1f2937] pt-4">
+                        <div class="input-wrapper"><span class="icon-l"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span><input type="date" id="filter-start" onchange="filterData()" class="search-field shadow-sm" title="Start Date"></div>
+                        <div class="input-wrapper"><span class="icon-l"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span><input type="date" id="filter-end" onchange="filterData()" class="search-field shadow-sm" title="End Date"></div>
+                        <div class="col-span-2 flex items-center justify-start md:justify-end px-2">
+                            <button onclick="document.getElementById('filter-start').value=''; document.getElementById('filter-end').value=''; filterData();" class="text-[12px] font-bold text-[#4F46E5] hover:text-[#3B82F6] dark:text-[#818cf8] transition-colors">Reset Dates</button>
+                        </div>
+                    </div>
+
+                    <div id="filter-total-container" class="flex items-center justify-between bg-[#5b8665] px-4 sm:px-6 py-4 rounded-[1.25rem] shadow-md hidden mt-2"><span id="filter-count" class="text-[12px] sm:text-[13px] font-medium text-white/90">0 entries located</span><div class="flex items-center gap-2"><span class="text-[9px] sm:text-[10px] font-bold uppercase text-white/70 tracking-widest hidden sm:inline">Selection Total:</span><span id="filter-total-value" class="text-[16px] sm:text-[18px] font-bold amount-blur text-white tracking-tight">₹0</span></div></div>
+                </div>
+                <div class="glass-card overflow-hidden !p-0"><div id="transaction-list"></div></div>
+            </div>
+
+            <div id="categories-view" class="view-section hidden fade-in">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                    <div id="category-grid" class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+                    
+                    <div class="flex flex-col gap-6 lg:sticky lg:top-0">
+                        <div class="glass-card p-6 flex flex-col h-[480px]">
+                            <h3 class="font-bold text-[#111827] text-[16px] mb-2 tracking-tight text-center">Expenditure Composition</h3>
+                            <div class="flex-1 relative w-full h-full pb-4">
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="glass-card p-6">
+                            <h3 class="font-bold text-[#111827] text-[14px] mb-4 tracking-tight border-b border-[#F3F4F6] dark:border-[#1f2937] pb-3">Monthly Limit Planning</h3>
+                            <div id="budget-tracker-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <div id="quick-entry-modal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center transition-opacity p-4">
+        <div class="bg-white rounded-[1.5rem] w-full max-w-md p-6 sm:p-7 shadow-2xl relative border border-[#E5E7EB] max-h-[90vh] overflow-y-auto">
+            <button onclick="toggleModal(false)" class="absolute top-5 right-5 text-[#9CA3AF] hover:text-[#111827] transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            <h2 class="text-[18px] font-bold text-[#111827] mb-3 tracking-tight">Add Transaction</h2>
+            
+            <div class="flex flex-wrap gap-2 mb-5">
+                <button type="button" onclick="fillTemplate('Fuel', 'Expense', 'JP IND')" class="text-[11px] font-bold bg-[#F9FAFB] hover:bg-[#F3F4F6] text-[#4B5563] py-1.5 px-3 rounded-lg transition-colors border border-[#E5E7EB] shadow-sm flex items-center gap-1 dark:bg-[#1f2937] dark:border-[#374151] dark:text-[#cbd5e1] dark:hover:bg-[#374151]"><span class="text-sm">⛽</span> Fuel</button>
+                <button type="button" onclick="fillTemplate('Swiggy', 'Expense', 'JP IND')" class="text-[11px] font-bold bg-[#F9FAFB] hover:bg-[#F3F4F6] text-[#4B5563] py-1.5 px-3 rounded-lg transition-colors border border-[#E5E7EB] shadow-sm flex items-center gap-1 dark:bg-[#1f2937] dark:border-[#374151] dark:text-[#cbd5e1] dark:hover:bg-[#374151]"><span class="text-sm">🍔</span> Food</button>
+                <button type="button" onclick="fillTemplate('Client Payment', 'Income', 'JP IND')" class="text-[11px] font-bold bg-[#DCFCE7] hover:bg-[#A7F3D0] text-[#059669] py-1.5 px-3 rounded-lg transition-colors border border-[#A7F3D0] shadow-sm flex items-center gap-1 dark:bg-[rgba(5,150,105,0.2)] dark:border-[#059669] dark:text-[#34d399] dark:hover:bg-[rgba(5,150,105,0.3)]"><span class="text-sm">💵</span> Income</button>
+                <button type="button" onclick="fillTemplate('Cash Wdl', 'Transfer', 'Cash')" class="text-[11px] font-bold bg-[#F9FAFB] hover:bg-[#F3F4F6] text-[#4B5563] py-1.5 px-3 rounded-lg transition-colors border border-[#E5E7EB] shadow-sm flex items-center gap-1 dark:bg-[#1f2937] dark:border-[#374151] dark:text-[#cbd5e1] dark:hover:bg-[#374151]"><span class="text-sm">🏧</span> ATM</button>
+            </div>
+
+            <form id="quick-entry-form" onsubmit="submitTransaction(event)" class="space-y-4 transition-opacity duration-200">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><label class="block text-[11px] font-bold text-[#6B7280] uppercase tracking-wider mb-1.5">Date</label><input type="date" id="tx-date" required class="w-full h-11 px-3 bg-[#F9FAFB] border border-[#D1D5DB] rounded-xl text-[13px] text-[#111827] focus:outline-none focus:border-[#4F46E5]"></div>
+                    <div><label class="block text-[11px] font-bold text-[#6B7280] uppercase tracking-wider mb-1.5">Amount (₹)</label><input type="number" id="tx-amount" required placeholder="0.00" class="w-full h-11 px-3 bg-[#F9FAFB] border border-[#D1D5DB] rounded-xl text-[13px] text-[#111827] focus:outline-none focus:border-[#4F46E5]"></div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><label class="block text-[11px] font-bold text-[#6B7280] uppercase tracking-wider mb-1.5">Account</label><select id="tx-account" class="w-full h-11 px-3 bg-[#F9FAFB] border border-[#D1D5DB] rounded-xl text-[13px] text-[#111827] focus:outline-none focus:border-[#4F46E5]"><option value="JP IND">JP IND</option><option value="JP CANARA">JP CANARA</option><option value="KL IND">KL IND</option><option value="KL CANARA">KL CANARA</option><option value="Credit Card">Credit Card</option><option value="Cash">Cash</option></select></div>
+                    <div><label class="block text-[11px] font-bold text-[#6B7280] uppercase tracking-wider mb-1.5">Type</label><select id="tx-type" class="w-full h-11 px-3 bg-[#F9FAFB] border border-[#D1D5DB] rounded-xl text-[13px] text-[#111827] focus:outline-none focus:border-[#4F46E5]"><option value="Expense">Expense</option><option value="Income">Income</option><option value="Transfer">Transfer</option></select></div>
+                </div>
+                <div><label class="block text-[11px] font-bold text-[#6B7280] uppercase tracking-wider mb-1.5">Description</label><input type="text" id="tx-desc" required placeholder="e.g., Swiggy, Fuel, Client Payment..." class="w-full h-11 px-3 bg-[#F9FAFB] border border-[#D1D5DB] rounded-xl text-[13px] text-[#111827] focus:outline-none focus:border-[#4F46E5]"></div>
+                <div class="pt-4"><button type="submit" id="submit-tx-btn" class="w-full h-12 bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold text-[14px] rounded-xl transition-colors shadow-md flex items-center justify-center gap-2">Save Transaction</button></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const BRIDGE_URL = "https://script.google.com/macros/s/AKfycbxZVZpZzAKOiGfwbWc3oNs7vfR77ljYhSSr7HKQ70mEAZCUpL99zLwTYlwd8Z2N2vc3/exec";
+        const DEFAULT_SHEET = "JUN 26";
+        
+        const BUDGET_LIMITS = { 
+            "Food & Dining": 10000 
+        };
+        
+        const INTERNAL_ACCOUNTS = ["JP IND", "JP CANARA", "KL IND", "KL CANARA", "Cash"];
+        const ICON_MAP = { "Food & Dining": "🍔", "Transport": "🚗", "Shopping": "🛍", "Bill Payments": "💳", "Internal Transfer": "🔄", "Income": "💵", "Refunds": "↩️", "Cash Withdrawals": "🏧", "Telecom & Recharges": "📱", "Fuel & Vehicle": "⛽", "Medical": "🏥", "Bank Charges & Fees": "🏛️", "Logistics & Delivery": "🚚", "Insurance & Investments": "🛡️", "Services & Maintenance": "🔧", "Loans & EMIs": "💸", "Others": "📦" };
+        const FOOD_KEYS = ["fruits", "fruit", "egg", "briyani", "biryani", "falooda", "milk", "sugar", "juice", "ice cream", "water", "snacks", "pizza", "chicken", "mutton", "fish", "lunch", "dinner", "breakfast", "mango", "mago", "orange", "apple", "banana", "coffee", "tea", "cake", "bakery", "hotel", "restaurant", "apporva", "swiggy", "instamart", "zomato", "groceries", "veg", "chocolate", "meal", "rice", "curd", "paneer", "cool drink", "sweet", "bread", "bun", "maggi", "panipuri", "tomato", "tomatto", "noodles"];
+        
+        const getCategory = (desc) => {
+            let d = desc.toLowerCase();
+            if (FOOD_KEYS.some(k => d.includes(k))) return "Food & Dining";
+            if (INTERNAL_ACCOUNTS.some(acc => desc.toUpperCase().includes(acc))) return "Internal Transfer";
+            if (d.includes("airtel") || d.includes("jio") || d.includes("recharge") || d.includes("data")) return "Telecom & Recharges";
+            if (d.includes("stationar") || d.includes("dress") || d.includes("cloth") || d.includes("super market") || d.includes("supermarket") || d.includes("school bag") || d.includes("bag")) return "Shopping";
+            if (d.includes("taxi") || d.includes("uber") || d.includes("ola")) return "Transport";
+            if (d.includes("petrol") || d.includes("diesel") || d.includes("fuel")) return "Fuel & Vehicle";
+            if (d.includes("courier") || d.includes("post") || d.includes("delivery") || d.includes("dunzo") || d.includes("porter") || d.includes("shiprocket") || d.includes("parcel")) return "Logistics & Delivery";
+            if (d.includes("cash back") || d.includes("refund") || d.includes("cashback")) return "Refunds";
+            if (d.includes("sms charge") || d.includes("bank fee") || d.includes("maintenance") || d.includes("gst") || d.includes("igst") || d.includes("service charge") || d.includes("bank charge")) return "Bank Charges & Fees";
+            if (d.includes("hdfc cc") || d.includes("bill") || d.includes("eb ") || d.includes("current")) return "Bill Payments";
+            if (d.includes("cash wdl")) return "Cash Withdrawals";
+            if (d.includes("medicine") || d.includes("hospital") || d.includes("clinic") || d.includes("tablet") || d.includes("pharmacy")) return "Medical";
+            if (d.includes("lic ") || d.includes("lic premium") || d.includes("insurance") || d.includes("policy")) return "Insurance & Investments";
+            if (d.includes("ro service") || d.includes("repair") || d.includes("water purifier")) return "Services & Maintenance";
+            if (d.includes("sangam") || d.includes("loan") || d.includes("emi")) return "Loans & EMIs";
+            if (d.includes("from") || d.includes("interest") || d.includes("int pd") || d.includes("credited")) return "Income";
+            return "Others";
+        };
+
+        let allSheetsData = {}; let rawTransactions = []; let accountData = {};
+        let momValue = 0, msValue = 0, chartInstance = null, catChartInstance = null, isBalancesHidden = false;
+
+        const formatINR = (v) => new Intl.NumberFormat('en-IN', { style:'currency', currency:'INR', maximumFractionDigits:0 }).format(Math.abs(v));
+
+        function updateSyncUI(status, message) {
+            const dot = document.getElementById('sync-status-dot'); const text = document.getElementById('sync-status-text'); const timer = document.getElementById('sync-timer');
+            dot.className = 'w-2 h-2 rounded-full transition-colors duration-300';
+            if (status === 'syncing') { dot.classList.add('bg-[#3B82F6]', 'animate-pulse'); text.innerText = 'SYNCING'; text.style.color = '#3B82F6'; } 
+            else if (status === 'success') { dot.classList.add('bg-[#10B981]'); text.innerText = 'LIVE SYNC'; text.style.color = '#10B981'; } 
+            else if (status === 'cached') { dot.classList.add('bg-[#F59E0B]'); text.innerText = 'LOCAL CACHE'; text.style.color = '#F59E0B'; } 
+            else if (status === 'error') { dot.classList.add('bg-[#DC2626]'); text.innerText = 'OFFLINE'; text.style.color = '#DC2626'; }
+            if(message) timer.innerText = message;
+        }
+
+        async function syncSheet() {
+            const btn = document.getElementById('sync-btn'); btn.disabled = true; btn.innerHTML = `<svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> <span class="hidden sm:inline">Syncing...</span>`;
+            updateSyncUI('syncing', 'Fetching from Google...');
+
+            try {
+                const response = await fetch(BRIDGE_URL); const rawJson = await response.json();
+                if (Array.isArray(rawJson)) { allSheetsData = { "Default Data": rawJson }; } else { allSheetsData = rawJson; }
+                localStorage.setItem("jpAccountsCache", JSON.stringify(allSheetsData));
+
+                const monthSelect = document.getElementById('month-selector'); monthSelect.innerHTML = ""; const sheetNames = Object.keys(allSheetsData);
+                sheetNames.forEach(name => { let isSelected = (name === DEFAULT_SHEET) ? "selected" : ""; monthSelect.innerHTML += `<option value="${name}" ${isSelected}>${name}</option>`; });
+                if(sheetNames.length > 1) monthSelect.classList.remove('hidden');
+
+                let initialSheet = sheetNames.includes(DEFAULT_SHEET) ? DEFAULT_SHEET : sheetNames[0];
+                processSheetData(initialSheet);
+
+                let now = new Date(); let timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                updateSyncUI('success', `Updated ${timeStr}`);
+            } catch (e) { console.error(e); updateSyncUI('error', 'Connection failed. Check network.'); }
+            
+            btn.disabled = false; btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2.5 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg> <span class="hidden sm:inline">Synchronize</span>`;
+        }
+
+        function switchMonth() { processSheetData(document.getElementById('month-selector').value); }
+
+        function processSheetData(sheetName) {
+            const data = allSheetsData[sheetName];
+            rawTransactions = []; momValue = 0; msValue = 0; 
+            
+            let bankInc = 0, bankExp = 0, bankOpening = 0, cashBal = 0;
+            
+            accountData = { 
+                "JP IND":    {bal:0, date:"--", color:"linear-gradient(135deg, #2563EB 0%, #1E40AF 100%)", icon: "₹", glow:"rgba(37, 99, 235, 0.4)"}, 
+                "JP CANARA": {bal:0, date:"--", color:"linear-gradient(135deg, #4F46E5 0%, #312E81 100%)", icon: "₹", glow:"rgba(79, 70, 229, 0.4)"}, 
+                "KL IND":    {bal:0, date:"--", color:"linear-gradient(135deg, #059669 0%, #064E3B 100%)", icon: "₹", glow:"rgba(5, 150, 105, 0.4)"},
+                "KL CANARA": {bal:0, date:"--", color:"linear-gradient(135deg, #475569 0%, #1E293B 100%)", icon: "₹", glow:"rgba(71, 85, 105, 0.4)"}  
+            };
+
+            const MAIN_BANKS = ["JP IND", "JP CANARA", "KL IND", "KL CANARA"];
+
+            for (let r = 0; r < data.length; r++) { 
+                if (data[r][1]) {
+                    let leftDesc = String(data[r][1]).trim();
+                    if (leftDesc === "Mom Amount") { let val = parseFloat(String(data[r][3]).replace(/,/g, '')); if (!isNaN(val)) momValue += val; }
+                    if (leftDesc === "MS Amount") { let val = parseFloat(String(data[r][3]).replace(/,/g, '')); if (!isNaN(val)) msValue += val; }
+                }
+                if (data[r][7]) {
+                    let rightDesc = String(data[r][7]).trim();
+                    if (rightDesc === "Mom Amount") { let val = parseFloat(String(data[r][9]).replace(/,/g, '')); if (!isNaN(val)) momValue += val; }
+                    if (rightDesc === "MS Amount") { let val = parseFloat(String(data[r][9]).replace(/,/g, '')); if (!isNaN(val)) msValue += val; }
+                }
+            }
+
+            const sections = [ {name:"JP IND", cols:[0,1,2,3,4]}, {name:"JP CANARA", cols:[6,7,8,9,10]}, {name:"KL IND", cols:[0,1,2,3,4]}, {name:"KL CANARA", cols:[6,7,8,9,10]}, {name:"Credit Card", cols:[0,1,2,3,4], isCC:true}, {name:"Cash", cols:[6,7,8,9,10]}, {name:"Cash", cols:[0,1,2,3,4]} ];
+            
+            sections.forEach(sec => {
+                let active = false;
+                for (let r = 0; r < data.length; r++) {
+                    let header = String(data[r][sec.cols[0]]).trim();
+                    if (header.toUpperCase() === sec.name.toUpperCase()) { active = true; continue; }
+                    if (active) {
+                        let desc = String(data[r][sec.cols[1]]).trim(), inc = parseFloat(String(data[r][sec.cols[2]]).replace(/,/g, '')) || 0, exp = parseFloat(String(data[r][sec.cols[3]]).replace(/,/g, '')) || 0, bal = parseFloat(String(data[r][sec.cols[4]]).replace(/,/g, ''));
+                        
+                        if (desc.includes("Balance As on") && !sec.isCC) {
+                            if (MAIN_BANKS.includes(sec.name)) bankOpening += bal;
+                        }
+
+                        if (header !== "" && header !== "Date" && header.toUpperCase() !== sec.name.toUpperCase() && !header.includes('-') && !desc.includes("Balance")) break;
+                        
+                        if (desc !== "" && desc !== "Description" && !desc.includes("Balance")) {
+                            const cat = getCategory(desc), isTr = cat === "Internal Transfer"; 
+                            let rawD = data[r][sec.cols[0]], cleanD = rawD;
+                            if (rawD && String(rawD).includes('T')) { let d = new Date(rawD); cleanD = d.getDate() + ' ' + d.toLocaleString('en-US', {month:'short'}); }
+                            else if (rawD && String(rawD).includes('-')) { let p = rawD.split('-'); const mo = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]; cleanD = p[0] + ' ' + mo[parseInt(p[1])-1]; }
+                            
+                            rawTransactions.push({date:cleanD, rawDate:rawD, account:sec.name, description:desc, category:cat, amount:inc>0?inc:-exp, type:isTr?'transfer':(inc>0?'income':'expense'), isCC:!!sec.isCC});
+                            
+                            if (MAIN_BANKS.includes(sec.name)) {
+                                if (inc > 0) bankInc += inc;
+                                if (exp > 0) bankExp += exp;
+                            } 
+                            
+                            if (!sec.isCC && accountData[sec.name]) accountData[sec.name].date = cleanD;
+                        }
+                        
+                        if (!sec.isCC && !isNaN(bal) && accountData[sec.name]) accountData[sec.name].bal = bal;
+                        if (sec.name === "Cash" && !isNaN(bal) && desc !== "Description" && desc !== "") {
+                            cashBal = bal;
+                        }
+
+                        if (desc === "" && r > 25) break;
+                    }
+                }
+            });
+            
+            window.currentBankInc = bankInc;
+            window.currentBankExp = bankExp;
+            
+            updateDashboard(bankInc, bankExp, bankOpening, cashBal); 
+            populateFilters(); 
+            filterData(); 
+            renderCategories(); 
+            renderTopExpenses();
+        }
+
+        function toggleBalances() { 
+            isBalancesHidden = !isBalancesHidden; 
+            document.querySelectorAll('.amount-blur').forEach(el => { el.style.filter = isBalancesHidden ? "blur(8px)" : "none"; }); 
+            document.getElementById('eye-open').classList.toggle('hidden', isBalancesHidden); 
+            document.getElementById('eye-closed').classList.toggle('hidden', !isBalancesHidden); 
+        }
+
+        // --- NEW: SIDEBAR TOGGLE LOGIC ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            
+            if (sidebar.classList.contains('-translate-x-[120%]')) {
+                // Open Sidebar
+                sidebar.classList.remove('-translate-x-[120%]');
+                sidebar.classList.add('translate-x-0');
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+            } else {
+                // Close Sidebar
+                sidebar.classList.add('-translate-x-[120%]');
+                sidebar.classList.remove('translate-x-0');
+                overlay.classList.add('opacity-0');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            }
+        }
+
+        function updateDashboard(inc, exp, opening, cash) {
+            document.getElementById('stat-opening').innerText = formatINR(opening); 
+            document.getElementById('stat-income').innerText = formatINR(inc); 
+            document.getElementById('stat-available').innerText = formatINR(opening + inc); 
+            document.getElementById('stat-expense').innerText = formatINR(exp); 
+            document.getElementById('stat-closing').innerText = formatINR((opening + inc) - exp); 
+            document.getElementById('stat-cash').innerText = formatINR(cash); 
+            
+            const grid = document.getElementById('bank-cards-grid'); grid.innerHTML = ""; 
+            let bankTotal = Object.values(accountData).reduce((s, a) => s + a.bal, 0);
+            
+            for (let name in accountData) { 
+                const acc = accountData[name], pct = bankTotal > 0 ? Math.round((acc.bal / bankTotal) * 100) : 0; 
+                grid.innerHTML += `<div class="bank-card" style="background: ${acc.color}; --glow-color: ${acc.glow};"><svg class="absolute right-0 bottom-0 w-[45%] opacity-[0.08] pointer-events-none" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M100 0 A 100 100 0 0 0 0 100 L 100 100 Z" fill="#ffffff" /></svg><div class="flex justify-between items-center mb-2 z-10 relative"><span class="text-[12px] font-bold tracking-wider text-white/90 uppercase">${name}</span><span class="text-[15px] font-normal text-white/80">${acc.icon}</span></div><div class="z-10 relative mt-4"><p class="text-[9px] text-white/70 uppercase tracking-widest mb-0.5 font-semibold">Balance</p><p class="bank-amt amount-blur">${formatINR(acc.bal)}</p></div><div class="flex justify-between items-end mt-5 z-10 relative"><div><p class="text-[9px] uppercase tracking-widest text-white/60 font-semibold">Updated</p><p class="text-[11px] font-bold text-white/90">${acc.date}</p></div><div class="flex items-center gap-1 text-white/90 pb-1"><span class="text-[12px]">↗</span><span class="text-[12px] font-bold">${pct}%</span></div></div></div>`; 
+            }
+            
+            document.getElementById('bank-total-sum').innerText = formatINR(bankTotal);
+            
+            document.getElementById('personal-balance-container').innerHTML = `<div class="glass-card p-6 flex flex-col h-[380px]"><div class="flex justify-between items-center mb-6"><h3 class="font-bold text-[#111827] text-[15px] tracking-tight">Asset Summary</h3><span class="text-[10px] font-bold text-[#4F46E5] uppercase tracking-wider bg-[#EEF2FF] px-2 py-1 rounded-md">Net Value</span></div><div class="space-y-4 flex-1"><div class="flex justify-between items-center pb-4 border-b border-[#F3F4F6]"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-[#F3F4F6] text-[#6B7280] flex items-center justify-center border border-[#E5E7EB]"><span class="font-bold text-[13px]">₹</span></div><span class="text-[13px] text-[#4B5563] font-semibold">Liquid Capital</span></div><span class="font-bold text-[14px] text-[#111827] amount-blur" style="filter: ${isBalancesHidden ? 'blur(8px)' : 'none'}">${formatINR(bankTotal)}</span></div><div class="flex justify-between items-center pb-4 border-b border-[#F3F4F6]"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-[#FEF2F2] text-[#DC2626] flex items-center justify-center"><span class="font-bold text-[14px]">-</span></div><span class="text-[13px] text-[#4B5563] font-semibold">MOM Amount</span></div><span class="font-semibold text-[13px] text-[#DC2626] amount-blur" style="filter: ${isBalancesHidden ? 'blur(8px)' : 'none'}">-${formatINR(momValue)}</span></div><div class="flex justify-between items-center pb-4 border-b border-[#F3F4F6]"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-[#FEF2F2] text-[#DC2626] flex items-center justify-center"><span class="font-bold text-[14px]">-</span></div><span class="text-[13px] text-[#4B5563] font-semibold">MS Amount</span></div><span class="font-semibold text-[13px] text-[#DC2626] amount-blur" style="filter: ${isBalancesHidden ? 'blur(8px)' : 'none'}">-${formatINR(msValue)}</span></div><div class="pt-2 mt-auto"><p class="text-[10px] font-bold text-[#6B7280] uppercase tracking-widest mb-1.5">Net Corporate Worth</p><p class="text-[26px] font-bold text-[#111827] amount-blur tracking-tight" style="filter: ${isBalancesHidden ? 'blur(8px)' : 'none'}">${formatINR(bankTotal - momValue - msValue)}</p></div></div></div>`;
+            
+            renderChart(inc, exp);
+        }
+
+        function renderTopExpenses() {
+            let expenseTotals = {}; let totalExp = 0;
+            rawTransactions.forEach(t => { if (t.type === 'expense') { expenseTotals[t.category] = (expenseTotals[t.category] || 0) + Math.abs(t.amount); totalExp += Math.abs(t.amount); } });
+            let sorted = Object.keys(expenseTotals).map(k => ({ cat: k, val: expenseTotals[k] })).sort((a, b) => b.val - a.val).slice(0, 4);
+            const container = document.getElementById('top-expenses-list');
+            if(sorted.length === 0) { container.innerHTML = `<p class="text-xs text-[#9CA3AF] text-center mt-10">No expenses recorded yet.</p>`; return; }
+            container.innerHTML = sorted.map(s => {
+                let pct = totalExp > 0 ? Math.round((s.val / totalExp) * 100) : 0;
+                return `<div><div class="flex justify-between text-[12px] font-semibold text-[#4B5563] mb-2"><span>${s.cat}</span><span class="text-[#111827] font-bold">${formatINR(s.val)}</span></div><div class="w-full bg-[#F3F4F6] rounded-full h-1.5"><div class="bg-[#4F46E5] h-1.5 rounded-full" style="width: ${pct}%"></div></div></div>`;
+            }).join('');
+        }
+
+        function populateFilters() {
+            const catF = document.getElementById('filter-category'), accF = document.getElementById('filter-account');
+            const uniqueCats = [...new Set(rawTransactions.map(t => t.category))].sort(); catF.innerHTML = '<option value="all">All Categories</option>' + uniqueCats.map(c => `<option value="${c}">${c}</option>`).join('');
+            const uniqueAccs = [...new Set(rawTransactions.map(t => t.account))].sort(); accF.innerHTML = '<option value="all">All Accounts</option>' + uniqueAccs.map(a => `<option value="${a}">${a}</option>`).join('');
+        }
+
+        function filterData() {
+            const type = document.getElementById('filter-type').value, cat = document.getElementById('filter-category').value, acc = document.getElementById('filter-account').value, search = document.getElementById('search-bar').value.toLowerCase();
+            
+            const startVal = document.getElementById('filter-start').value;
+            const endVal = document.getElementById('filter-end').value;
+            const startDate = startVal ? new Date(startVal) : null;
+            if (startDate) startDate.setHours(0,0,0,0);
+            const endDate = endVal ? new Date(endVal) : null;
+            if (endDate) endDate.setHours(23,59,59,999);
+
+            const filtered = rawTransactions.filter(t => {
+                let dateMatch = true;
+                if (startDate || endDate) {
+                    let txDate = new Date(t.rawDate);
+                    if (!isNaN(txDate.getTime())) {
+                        if (startDate && txDate < startDate) dateMatch = false;
+                        if (endDate && txDate > endDate) dateMatch = false;
+                    } else if (String(t.rawDate).includes('-')) {
+                        let parts = String(t.rawDate).split('-');
+                        if (parts.length === 3) {
+                            let parsed = new Date(parts[2], parseInt(parts[1])-1, parts[0]);
+                            if (!isNaN(parsed.getTime())) {
+                                if (startDate && parsed < startDate) dateMatch = false;
+                                if (endDate && parsed > endDate) dateMatch = false;
+                            }
+                        }
+                    }
+                }
+                
+                return dateMatch && 
+                       (type === 'all' || t.type === type) && 
+                       (cat === 'all' || t.category === cat) && 
+                       (acc === 'all' || t.account === acc) && 
+                       (t.description.toLowerCase().includes(search));
+            });
+            
+            const totalVal = filtered.reduce((sum, t) => sum + t.amount, 0); const totalC = document.getElementById('filter-total-container');
+            if (type !== 'all' || cat !== 'all' || acc !== 'all' || search !== "" || startDate || endDate) { 
+                totalC.classList.remove('hidden'); document.getElementById('filter-total-value').innerText = (totalVal >= 0 ? '+' : '') + formatINR(totalVal); document.getElementById('filter-count').innerText = `${filtered.length} entries located`; 
+            } else { totalC.classList.add('hidden'); }
+            renderTransactions(filtered);
+        }
+
+        function renderTransactions(data) { 
+            document.getElementById('transaction-list').innerHTML = data.map(t => `<div class="px-6 py-4 border-b border-[#F3F4F6] flex justify-between items-center hover:bg-[#F9FAFB] transition-colors cursor-default dark:border-[#1f2937] dark:hover:bg-[#1f2937]"><div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl flex items-center justify-center text-[16px] ${t.type === 'income' ? 'bg-[#DCFCE7] text-[#059669] dark:bg-[rgba(5,150,105,0.2)] dark:text-[#34d399]' : (t.type === 'transfer' ? 'bg-[#F3F4F6] text-[#6B7280] dark:bg-[#374151] dark:text-[#94a3b8]' : 'bg-[#FEE2E2] text-[#DC2626] dark:bg-[rgba(220,38,38,0.2)] dark:text-[#f87171]')} shadow-sm border border-white dark:border-[#1f2937]">${t.type === 'income' ? '↓' : (t.type === 'transfer' ? '⇄' : '↑')}</div><div><p class="font-semibold text-[#111827] dark:text-[#f8fafc] text-[13px]">${t.description} ${t.isCC ? '<span class="text-[9px] bg-[#F3F4F6] text-[#6B7280] px-1.5 py-0.5 rounded-md font-bold uppercase ml-2 border border-[#E5E7EB] dark:bg-[#374151] dark:border-[#4B5563] dark:text-[#cbd5e1]">CC</span>' : ''}</p><p class="text-[10px] mt-1 uppercase tracking-wider font-semibold"><span class="text-[#9CA3AF]">${t.date}</span> <span class="text-[#D1D5DB] dark:text-[#4B5563]">&nbsp;•&nbsp;</span> <span class="text-[#4F46E5] dark:text-[#818cf8]">${t.category}</span> <span class="text-[#D1D5DB] dark:text-[#4B5563]">&nbsp;•&nbsp;</span> <span class="text-[#059669] dark:text-[#34d399]">${t.account}</span></p></div></div><p class="text-[14px] font-bold ${t.type === 'income' ? 'text-[#059669] dark:text-[#34d399]' : (t.type === 'transfer' ? 'text-[#6B7280] dark:text-[#94a3b8]' : 'text-[#DC2626] dark:text-[#f87171]')}">${t.type === 'expense' ? '-' : (t.type === 'income' ? '+' : '')}${formatINR(t.amount)}</p></div>`).join(''); 
+        }
+
+        function renderCategories() {
+            const grid = document.getElementById('category-grid'), summary = {}, labels = [], values = [];
+            rawTransactions.forEach(t => { if (!summary[t.category]) summary[t.category] = { total: 0, type: t.type }; summary[t.category].total += Math.abs(t.amount); });
+            grid.innerHTML = Object.keys(summary).sort().map(cat => {
+                const icon = ICON_MAP[cat] || "📌"; const type = summary[cat].type; const color = (type === 'income') ? 'text-[#059669]' : (type === 'transfer' ? 'text-[#4F46E5]' : 'text-[#111827]');
+                labels.push(cat); values.push(summary[cat].total);
+                return `<div onclick="drillToCategory('${cat}')" class="glass-card p-6 flex flex-col gap-3 cursor-pointer hover:border-[#4F46E5]"><div class="flex justify-between items-start"><div class="w-10 h-10 rounded-xl bg-[#F9FAFB] flex items-center justify-center text-lg border border-[#E5E7EB] shadow-sm">${icon}</div><p class="text-[9px] font-bold uppercase tracking-wider text-[#6B7280] bg-[#F3F4F6] px-2 py-1 rounded-md">${type}</p></div><div class="mt-2"><h4 class="font-semibold text-[#6B7280] text-[12px] mb-1">${cat}</h4><p class="text-[20px] font-bold ${color} amount-blur tracking-tight" style="filter: ${isBalancesHidden ? 'blur(8px)' : 'none'}">${formatINR(summary[cat].total)}</p></div></div>`;
+            }).join('');
+            renderDoughnut(labels, values);
+            renderBudgetTracker(summary);
+        }
+
+        function renderBudgetTracker(summary) {
+            const container = document.getElementById('budget-tracker-container');
+            if(!container) return;
+            
+            let html = '';
+            for (let cat in BUDGET_LIMITS) {
+                let limit = BUDGET_LIMITS[cat];
+                let spent = summary[cat] ? summary[cat].total : 0;
+                let pct = Math.min((spent / limit) * 100, 100).toFixed(1);
+                let overage = spent > limit ? spent - limit : 0;
+                
+                let colorClass = 'bg-[#10B981]'; 
+                if (pct >= 80 && pct < 100) colorClass = 'bg-[#F59E0B]'; 
+                if (pct >= 100) colorClass = 'bg-[#DC2626]'; 
+
+                html += `
+                <div class="mb-4 last:mb-0">
+                    <div class="flex justify-between text-[12px] font-semibold text-[#4B5563] mb-2 dark:text-[#cbd5e1]">
+                        <span class="flex items-center gap-1.5">${ICON_MAP[cat] || "📌"} ${cat}</span>
+                        <span class="text-[#111827] dark:text-[#f8fafc] font-bold amount-blur">${formatINR(spent)} / ${formatINR(limit)}</span>
+                    </div>
+                    <div class="w-full bg-[#F3F4F6] dark:bg-[#1f2937] rounded-full h-2.5 mb-1.5 shadow-inner">
+                        <div class="${colorClass} h-2.5 rounded-full transition-all duration-700 ease-out shadow-sm" style="width: ${pct}%"></div>
+                    </div>
+                    ${overage > 0 
+                        ? `<p class="text-[10px] font-bold text-[#DC2626] text-right mt-1 amount-blur">Over budget by ${formatINR(overage)}</p>` 
+                        : `<p class="text-[10px] font-semibold text-[#6B7280] dark:text-[#94a3b8] text-right mt-1 amount-blur">${formatINR(limit - spent)} remaining</p>`}
+                </div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function renderDoughnut(l, v) { 
+            const ctx = document.getElementById('categoryChart').getContext('2d'); if (catChartInstance) catChartInstance.destroy(); 
+            const themeColors = ['#4F46E5', '#059669', '#3B82F6', '#F59E0B', '#EC4899', '#8B5CF6', '#14B8A6', '#F43F5E', '#10B981', '#6366F1', '#64748B'];
+            const isDark = document.body.classList.contains('dark-mode');
+            
+            catChartInstance = new Chart(ctx, { 
+                type: 'doughnut', 
+                data: { labels: l, datasets: [{ data: v, backgroundColor: themeColors, borderWidth: 3, borderColor: isDark ? '#111827' : '#ffffff' }] }, 
+                options: { 
+                    responsive: true, maintainAspectRatio: false, cutout: '75%', 
+                    onClick: (event, elements, chart) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            drillToCategory(chart.data.labels[index]);
+                        }
+                    },
+                    onHover: (event, elements) => {
+                        event.native.target.style.cursor = elements.length ? 'pointer' : 'default';
+                    },
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 15, font: { family: 'Inter', size: 11, weight: '600' }, color: isDark ? '#cbd5e1' : '#4B5563' } } } 
+                } 
+            }); 
+        }
+
+        function drillToCategory(cat) { showPage('transactions'); document.getElementById('filter-category').value = cat; filterData(); }
+        
+        function showPage(p) { 
+            document.querySelectorAll('.view-section').forEach(v => v.classList.add('hidden')); document.getElementById(`${p}-view`).classList.remove('hidden'); document.querySelectorAll('nav button').forEach(b => b.classList.remove('nav-active')); document.getElementById(`nav-${p}`).classList.add('nav-active'); 
+            const titles = { 'dashboard': 'Financial Overview', 'transactions': 'Ledger Entries', 'categories': 'Category Analysis' }; document.getElementById('page-title').innerText = titles[p]; 
+            
+            // Auto-close sidebar on mobile after clicking a link
+            if (window.innerWidth < 1024) {
+                const sidebar = document.getElementById('sidebar');
+                if (!sidebar.classList.contains('-translate-x-[120%]')) {
+                    toggleSidebar();
+                }
+            }
+        }
+
+        function renderChart(inc, exp) { 
+            const ctx = document.getElementById('trendChart').getContext('2d'); if (chartInstance) chartInstance.destroy(); 
+            const isDark = document.body.classList.contains('dark-mode');
+
+            chartInstance = new Chart(ctx, { 
+                type: 'bar', 
+                data: { labels: ['Current Month'], datasets: [ { label: 'Inflow', data: [inc], backgroundColor: '#4F46E5', borderRadius: 6, barThickness: 36 }, { label: 'Outflow', data: [exp], backgroundColor: '#DC2626', borderRadius: 6, barThickness: 36 } ] }, 
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    onClick: (event, elements, chart) => {
+                        if (elements.length > 0) {
+                            const dsIndex = elements[0].datasetIndex;
+                            showPage('transactions'); 
+                            document.getElementById('filter-type').value = dsIndex === 0 ? 'income' : 'expense'; 
+                            filterData();
+                        }
+                    },
+                    onHover: (event, elements) => {
+                        event.native.target.style.cursor = elements.length ? 'pointer' : 'default';
+                    },
+                    plugins: { legend: { position: 'top', labels: { font: { family: 'Inter', size: 12, weight: '600' }, usePointStyle: true, boxWidth: 8, color: isDark ? '#cbd5e1' : '#4B5563' } } }, 
+                    scales: { 
+                        y: { display: true, border: { display: false }, grid: { color: isDark ? '#1f2937' : '#F3F4F6' }, ticks: { font: { family: 'Inter', size: 11 }, color: isDark ? '#94a3b8' : '#9CA3AF' } }, 
+                        x: { border: { display: false }, grid: { display: false }, ticks: { font: { family: 'Inter', size: 12, weight: '600' }, color: isDark ? '#cbd5e1' : '#6B7280' } } 
+                    } 
+                } 
+            }); 
+        }
+
+        // --- THEME TOGGLE LOGIC ---
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('jpAccountsTheme', isDark ? 'dark' : 'light');
+            
+            document.getElementById('theme-moon').classList.toggle('hidden', isDark);
+            document.getElementById('theme-sun').classList.toggle('hidden', !isDark);
+
+            if (rawTransactions.length > 0) {
+                renderChart(window.currentBankInc || 0, window.currentBankExp || 0);
+                renderCategories();
+            }
+        }
+
+        if (document.body.classList.contains('dark-mode')) {
+            document.getElementById('theme-moon').classList.add('hidden');
+            document.getElementById('theme-sun').classList.remove('hidden');
+        }
+
+        document.addEventListener('contextmenu', e => e.preventDefault());
+
+        let isFetching = false;
+
+        window.addEventListener('focus', () => {
+            const btn = document.getElementById('sync-btn');
+            if (isFetching || (btn && btn.disabled)) return; 
+            isFetching = true;
+            if (btn) { btn.innerHTML = `<svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> <span class="hidden sm:inline">Syncing...</span>`; btn.disabled = true; }
+            syncSheet();
+            setTimeout(() => { isFetching = false; if (btn && btn.disabled) { btn.disabled = false; btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2.5 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg> <span class="hidden sm:inline">Synchronize</span>`; updateSyncUI('error', 'Sync Timeout'); } }, 10000); 
+        });
+
+        function loadFromCache() {
+            const cached = localStorage.getItem("jpAccountsCache");
+            if (cached) {
+                try {
+                    allSheetsData = JSON.parse(cached);
+                    const sheetNames = Object.keys(allSheetsData);
+                    const monthSelect = document.getElementById('month-selector'); monthSelect.innerHTML = "";
+                    sheetNames.forEach(name => { let isSelected = (name === DEFAULT_SHEET) ? "selected" : ""; monthSelect.innerHTML += `<option value="${name}" ${isSelected}>${name}</option>`; });
+                    if(sheetNames.length > 1) monthSelect.classList.remove('hidden');
+                    let initialSheet = sheetNames.includes(DEFAULT_SHEET) ? DEFAULT_SHEET : sheetNames[0];
+                    processSheetData(initialSheet);
+                    updateSyncUI('cached', 'Showing Local Memory');
+                } catch (e) { console.log("Memory load error", e); }
+            }
+        }
+
+        function toggleModal(show) {
+            document.getElementById('quick-entry-modal').classList.toggle('hidden', !show);
+            if(show) { document.getElementById('tx-date').valueAsDate = new Date(); document.getElementById('tx-amount').focus(); }
+        }
+
+        function fillTemplate(desc, type, account) {
+            document.getElementById('tx-desc').value = desc;
+            document.getElementById('tx-type').value = type;
+            document.getElementById('tx-account').value = account;
+            
+            const form = document.getElementById('quick-entry-form');
+            form.classList.add('opacity-50');
+            setTimeout(() => form.classList.remove('opacity-50'), 150);
+            
+            document.getElementById('tx-amount').focus();
+        }
+
+        async function submitTransaction(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submit-tx-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Sending...`;
+            btn.disabled = true;
+
+            const payload = {
+                date: document.getElementById('tx-date').value, amount: document.getElementById('tx-amount').value,
+                account: document.getElementById('tx-account').value, type: document.getElementById('tx-type').value,
+                desc: document.getElementById('tx-desc').value
+            };
+
+            try {
+                await fetch(BRIDGE_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+                document.getElementById('quick-entry-form').reset();
+                toggleModal(false);
+                updateSyncUI('success', 'Inserted successfully!');
+                syncSheet(); 
+            } catch (err) { console.error(err); alert("Failed to send transaction. Check network."); }
+
+            btn.innerHTML = originalText; btn.disabled = false;
+        }
+
+        loadFromCache();
+        syncSheet();
+    </script> 
+</body>
+</html>

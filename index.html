@@ -32,8 +32,8 @@
         .search-field:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
         .filter-select { appearance: none; padding-left: 1.25rem !important; padding-right: 2.5rem !important; height: 44px; background: #ffffff; border: 1px solid #D1D5DB; border-radius: 0.75rem; width: 100%; font-size: 12px; font-weight: 500; cursor: pointer; color: #4B5563; transition: all 0.2s;}
         #month-selector { appearance: none; padding-left: 1.25rem; padding-right: 2.5rem; height: 40px; background: #ffffff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" stroke="%236B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>') no-repeat right 1rem center; border: 1px solid #D1D5DB; border-radius: 0.75rem; font-weight: 600; font-size: 13px; color: #111827; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);}
-        #sync-btn { background-color: #5b8665; color: white; height: 40px; border-radius: 0.75rem; font-size: 13px; font-weight: 600; transition: all 0.3s; border: none; box-shadow: 0 4px 10px rgba(91, 134, 101, 0.3);}
-        .btn-quick { background-color: #4F46E5; color: white; height: 40px; padding: 0 1.25rem; border-radius: 0.75rem; font-size: 13px; font-weight: 600; transition: all 0.3s; border: none; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+        #sync-btn { background-color: #5b8665; color: white; transition: all 0.3s; border: none; box-shadow: 0 4px 10px rgba(91, 134, 101, 0.3); display: flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer;}
+        .btn-quick { background-color: #4F46E5; color: white; transition: all 0.3s; border: none; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); display: flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 10px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -64,16 +64,20 @@
 </head>
 <body class="flex h-screen overflow-hidden" id="app-body">
 
+    <!-- INSTANT THEME LOADER TO PREVENT FLASHING -->
     <script>
         if (localStorage.getItem('jpAccountsTheme') === 'dark') {
             document.body.classList.add('dark-mode');
         }
     </script>
 
+    <!-- MOBILE OVERLAY -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-40 hidden transition-opacity lg:hidden" onclick="toggleSidebar()"></div>
 
+    <!-- RESPONSIVE FLOATING SIDEBAR -->
     <div id="sidebar" class="w-[260px] sidebar m-4 rounded-[1.25rem] p-6 flex flex-col shrink-0 absolute lg:relative z-50 transform -translate-x-[120%] lg:translate-x-0 h-[calc(100vh-2rem)] lg:h-auto shadow-2xl lg:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)]">
         
+        <!-- Mobile Close Button -->
         <button onclick="toggleSidebar()" class="lg:hidden absolute top-5 right-5 text-[#9CA3AF] hover:text-[#111827] transition-colors dark:hover:text-[#f8fafc]">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
@@ -100,11 +104,14 @@
         </div>
     </div>
 
+    <!-- MAIN AREA -->
     <div class="flex-1 overflow-y-auto p-4 md:p-8 relative">
         <div class="max-w-[1400px] mx-auto">
             
+            <!-- RESPONSIVE HEADER -->
             <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-8 bg-white/50 backdrop-blur-md p-4 rounded-2xl border border-white shadow-sm dark:bg-[rgba(17,24,39,0.8)] dark:border-[#1f2937]">
                 
+                <!-- Title & Hamburger Menu -->
                 <div class="flex items-center gap-3 w-full xl:w-auto">
                     <button onclick="toggleSidebar()" class="lg:hidden w-10 h-10 rounded-xl bg-white border border-[#D1D5DB] text-[#6B7280] transition-all flex items-center justify-center hover:bg-[#F3F4F6] hover:text-[#111827] shadow-sm shrink-0 dark:bg-[#111827] dark:border-[#1f2937] dark:hover:bg-[#1f2937] dark:text-[#94a3b8] dark:hover:text-[#f8fafc]">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
@@ -112,6 +119,7 @@
                     <h1 id="page-title" class="text-[20px] md:text-[24px] font-bold text-[#111827] tracking-tight">Financial Overview</h1>
                 </div>
 
+                <!-- Controls -->
                 <div class="flex items-center gap-2 md:gap-3 flex-wrap sm:flex-nowrap w-full xl:w-auto sm:justify-end overflow-x-auto pb-1 sm:pb-0">
                     
                     <button onclick="window.location.reload()" class="w-10 h-10 rounded-xl bg-white border border-[#D1D5DB] text-[#6B7280] transition-all flex items-center justify-center hover:bg-[#F3F4F6] hover:text-[#111827] shadow-sm shrink-0 dark:bg-[#111827] dark:border-[#1f2937] dark:hover:bg-[#1f2937] dark:text-[#94a3b8] dark:hover:text-[#f8fafc]" title="Reload App">
@@ -130,12 +138,19 @@
                     
                     <select id="month-selector" onchange="switchMonth()" class="hidden outline-none shadow-sm shrink-0"></select>
                     
-                    <button onclick="toggleModal(true)" class="btn-quick shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> <span class="hidden sm:inline">Quick Entry</span></button>
+                    <button onclick="toggleModal(true)" class="btn-quick w-10 h-10 md:w-auto md:h-10 md:px-4 rounded-xl flex items-center justify-center shrink-0 text-[13px] font-semibold">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> 
+                        <span class="hidden md:inline">Quick Entry</span>
+                    </button>
                     
-                    <button onclick="syncSheet()" id="sync-btn" class="px-3 sm:px-5 flex items-center gap-2 shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2.5 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg> <span class="hidden sm:inline">Synchronize</span></button>
+                    <button onclick="syncSheet()" id="sync-btn" class="bg-[#5b8665] text-white w-10 h-10 md:w-auto md:h-10 md:px-4 rounded-xl flex items-center justify-center shrink-0 transition-all border-none shadow-md text-[13px] font-semibold">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2.5 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg> 
+                        <span class="hidden md:inline pl-1.5">Synchronize</span>
+                    </button>
                 </div>
             </div>
 
+            <!-- DASHBOARD VIEW -->
             <div id="dashboard-view" class="view-section fade-in">
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
                     <div class="glass-card stat-card"><span class="stat-label">Opening Balance</span><p id="stat-opening" class="stat-value amount-blur">₹0</p><div class="stat-icon bg-[#F3F4F6] text-[#6B7280]"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"></circle></svg></div></div>
@@ -158,7 +173,8 @@
                     <div class="flex gap-2 items-center bg-white px-3 py-1 rounded-md border border-[#E5E7EB] shadow-sm"><span class="text-[10px] font-bold text-[#6B7280] uppercase tracking-widest hidden sm:inline">Aggregate Liquidity:</span><span id="bank-total-sum" class="text-sm font-bold text-[#111827] amount-blur">₹0</span></div>
                 </div>
 
-                <div id="bank-cards-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8"></div>
+                <!-- PERFECT SINGLE COLUMN ON MOBILE -->
+                <div id="bank-cards-grid" class="grid grid-cols-1 lg:grid-cols-4 gap-5 mb-8"></div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="glass-card p-6 flex flex-col h-[380px]"><h3 class="font-bold text-[#111827] text-[15px] mb-6 tracking-tight">Cashflow Overview</h3><div class="flex-1 relative w-full h-full"><canvas id="trendChart"></canvas></div></div>
@@ -167,6 +183,7 @@
                 </div>
             </div>
 
+            <!-- TRANSACTIONS VIEW -->
             <div id="transactions-view" class="view-section hidden fade-in">
                 <div class="flex flex-col gap-4 mb-8">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
@@ -189,6 +206,7 @@
                 <div class="glass-card overflow-hidden !p-0"><div id="transaction-list"></div></div>
             </div>
 
+            <!-- CATEGORIES VIEW -->
             <div id="categories-view" class="view-section hidden fade-in">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                     <div id="category-grid" class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5"></div>
@@ -212,6 +230,7 @@
         </div>
     </div>
 
+    <!-- QUICK ENTRY MODAL -->
     <div id="quick-entry-modal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center transition-opacity p-4">
         <div class="bg-white rounded-[1.5rem] w-full max-w-md p-6 sm:p-7 shadow-2xl relative border border-[#E5E7EB] max-h-[90vh] overflow-y-auto">
             <button onclick="toggleModal(false)" class="absolute top-5 right-5 text-[#9CA3AF] hover:text-[#111827] transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
@@ -288,7 +307,9 @@
         }
 
         async function syncSheet() {
-            const btn = document.getElementById('sync-btn'); btn.disabled = true; btn.innerHTML = `<svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> <span class="hidden sm:inline">Syncing...</span>`;
+            const btn = document.getElementById('sync-btn'); btn.disabled = true; 
+            btn.innerHTML = `<svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> <span class="hidden md:inline pl-1.5">Syncing...</span>`;
+            
             updateSyncUI('syncing', 'Fetching from Google...');
 
             try {
@@ -307,7 +328,8 @@
                 updateSyncUI('success', `Updated ${timeStr}`);
             } catch (e) { console.error(e); updateSyncUI('error', 'Connection failed. Check network.'); }
             
-            btn.disabled = false; btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2.5 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg> <span class="hidden sm:inline">Synchronize</span>`;
+            btn.disabled = false; 
+            btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2.5 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg> <span class="hidden md:inline pl-1.5">Synchronize</span>`;
         }
 
         function switchMonth() { processSheetData(document.getElementById('month-selector').value); }
@@ -399,19 +421,17 @@
             document.getElementById('eye-closed').classList.toggle('hidden', !isBalancesHidden); 
         }
 
-        // --- NEW: SIDEBAR TOGGLE LOGIC ---
+        // --- SIDEBAR TOGGLE LOGIC ---
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebar-overlay');
             
             if (sidebar.classList.contains('-translate-x-[120%]')) {
-                // Open Sidebar
                 sidebar.classList.remove('-translate-x-[120%]');
                 sidebar.classList.add('translate-x-0');
                 overlay.classList.remove('hidden');
                 setTimeout(() => overlay.classList.remove('opacity-0'), 10);
             } else {
-                // Close Sidebar
                 sidebar.classList.add('-translate-x-[120%]');
                 sidebar.classList.remove('translate-x-0');
                 overlay.classList.add('opacity-0');
@@ -581,7 +601,6 @@
             document.querySelectorAll('.view-section').forEach(v => v.classList.add('hidden')); document.getElementById(`${p}-view`).classList.remove('hidden'); document.querySelectorAll('nav button').forEach(b => b.classList.remove('nav-active')); document.getElementById(`nav-${p}`).classList.add('nav-active'); 
             const titles = { 'dashboard': 'Financial Overview', 'transactions': 'Ledger Entries', 'categories': 'Category Analysis' }; document.getElementById('page-title').innerText = titles[p]; 
             
-            // Auto-close sidebar on mobile after clicking a link
             if (window.innerWidth < 1024) {
                 const sidebar = document.getElementById('sidebar');
                 if (!sidebar.classList.contains('-translate-x-[120%]')) {
@@ -647,9 +666,9 @@
             const btn = document.getElementById('sync-btn');
             if (isFetching || (btn && btn.disabled)) return; 
             isFetching = true;
-            if (btn) { btn.innerHTML = `<svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> <span class="hidden sm:inline">Syncing...</span>`; btn.disabled = true; }
+            if (btn) { btn.innerHTML = `<svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> <span class="hidden md:inline pl-1.5">Syncing...</span>`; btn.disabled = true; }
             syncSheet();
-            setTimeout(() => { isFetching = false; if (btn && btn.disabled) { btn.disabled = false; btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2.5 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg> <span class="hidden sm:inline">Synchronize</span>`; updateSyncUI('error', 'Sync Timeout'); } }, 10000); 
+            setTimeout(() => { isFetching = false; if (btn && btn.disabled) { btn.disabled = false; btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2.5 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg> <span class="hidden md:inline pl-1.5">Synchronize</span>`; updateSyncUI('error', 'Sync Timeout'); } }, 10000); 
         });
 
         function loadFromCache() {
